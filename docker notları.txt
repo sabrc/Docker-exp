@@ -1,0 +1,108 @@
+ 
+                DOCKER
+   DOCKER kurulum
+sudo yum update -y
+sudo amazon-linux-extras install docker -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo systemctl status docker
+sudo usermod -a -G docker ec2-user
+newgrp docker
+docker version
+
+  https://github.com/Rose94t/DockerElKitabi
+  https://docs.docker.com/compose/gettingstarted/
+  https://docs.docker.com/compose/profiles/  
+  https://github.com/docker/awesome-compose 
+  
+https://hub.docker.com/_/mysql 
+
+
+
+   DOCKER komutları
+docker run:başlatmak
+docker ps(process):programın çalışan haline denir ,çalışan prg tümüne denir
+docker start: stop etmiş connterleri çalıştırır
+docker da kullanılan genel komutlar :
+işletim sistemini öğrenme = cat /etc/os-release (linux komutu. Containerın hangi işletim sisteminden yapıldığını görmek için kullanıyoruz.)
+docker run -i -t ubuntu (ubuntu imajını çalıştır. i = interactive, t = terminal açıyor.
+docker ps = çalışan containerları listeler.(önerilen docker container ls komutunu kullanmak)
+docker ps -a = bütün containerları listeler.(önerilen docker container ls -a komutunu kullanmak )
+docker run -d = containerı arka planda çalıştırır. Terminali kullanmaya devam edebiliriz.(-d = detach)
+docker container exec -it nginx bash (çalışan containera bağlanma , bash terminali açarak bağlanır. )
+docker container rm + container id = çalışmayan containerları siler.
+docker container stop + container id = çalışan containerı durdurur.
+docker container start + container id = duran containerı çalıştırır.
+docker container rm -f + container id = çalışan containerları siler.
+docker container prune = çalışmayan bütün containerları siler.
+docker inspect + container id = containerı inceler
+docker rm -f $(docker ps -aq)  hepsini silme komt
+
+docker image prune -af :tum imajlari silmek icin
+
+    DOCKER ÜZETİ
+1. Her docker run yeni container demek.
+2. Container bir uygulama içindir ve hep çalışmalıdır.
+3. Her container bir process'dir.
+4. image'lar olabildiğince küçük olmalıdır.
+5. Her ne kadar container içerisine birden fazla uygulama yüklenebilse de kullanım için yugun değildir. Her container bir uygulama için oluşturulur.
+
+
+      DOCKER VOLUME
+1- hedef dizin yoksa - Hedef dizin oluşturulur ve birim içindeki dosyalar bu dizine kopyalanır.
+2- Bir hedef dizin varsa, ancak boşsa - Birimdeki dosyalar hedef dizine kopyalanır.
+3- Bir hedef dizin varsa ve boş değilse, ancak birim boşsa - Hedef dizindeki dosyalar birimlere kopyalanır.
+4- Birim boş değilse - Hedef dizinin dolu veya boş olmasına bakılmaksızın birim içinde sadece dosyalar olacaktır.
+
+DOCKERFİLE
+ 
+FROM python:3.7-alpine 
+WORKDIR /code 
+ENV FLASK_APP app.py 
+ENV FLASK_RUN_HOST 0.0.0.0 
+ 
+FLASK_APP app.py demek app.py yi çalıştır demektir. normalde python3 ile kullanıyorduk bu da flask komutudur. 
+ 
+FLASK_RUN_HOST 0.0.0.0 herkes public olarak ulaşabilsin demektir. 
+ 
+apk ile bazı dependencies leri yüklüyoruz, bunları developerler söylüyor. 
+ 
+FROM python:3.7-alpine 
+WORKDIR /code 
+ENV FLASK_APP app.py 
+ENV FLASK_RUN_HOST 0.0.0.0 
+RUN apk add --no-cache gcc musl-dev linux-heahders 
+ 
+requirements.txt yi atmak için COPY kullanıyoruz: 
+ 
+COPY requirements.txt requirements.txt  şeklinde konteynırın içinde code un içine kopyalıyor. çünkü üstte WORKDIR ile code içine girmiştik. 
+ 
+daha sonra da requirements.txt içindekileri yüklüyoruz: 
+RUN pip install -r requirements.txt  
+ 
+FROM python:3.7-alpine 
+WORKDIR /code 
+ENV FLASK_APP app.py 
+ENV FLASK_RUN_HOST 0.0.0.0 
+RUN apk add --no-cache gcc musl-dev linux-heahders 
+COPY requirements.txt requirements.txt  
+RUN pip install -r requirements.txt  
+ 
+-r requirements.txt yi kullan demektir. 
+ 
+sonrasında da EXPOSE 5000 ile image in 5000 portundan çalıştığını belirledikten sonra dosyalarımızı kopyalayacaz. en sonda da flask kullanarak app i run etmesi için CMD komutunu girecez, burada exec fomuda yazılmış: 
+ 
+FROM python:3.7-alpine 
+WORKDIR /code 
+ENV FLASK_APP app.py 
+ENV FLASK_RUN_HOST 0.0.0.0 
+RUN apk add --no-cache gcc musl-dev linux-heahders 
+COPY requirements.txt requirements.txt  
+RUN pip install -r requirements.txt  
+EXPOSE 5000 
+COPY . . 
+CMD ["flask", "run"] 
+
+
+ 
+
